@@ -8,10 +8,10 @@
 # --- UI Helpers ---
 print_header() {
     if command -v gum &> /dev/null; then
-        gum style --foreground 212 --border-foreground 212 --border double --align center --width 50 "macOS Setup Wizard"
+        gum style --foreground 212 --border-foreground 212 --border double --align center --width 50 "Setup Wizard"
     else
         echo "=================================================="
-        echo "              macOS Setup Wizard                  "
+        echo "                   Setup Wizard                   "
         echo "=================================================="
     fi
 }
@@ -69,7 +69,7 @@ install_group() {
     # Check if options are empty
     if [ ${#options[@]} -eq 0 ]; then return; fi
 
-    print_step "Let's setup $group_label"
+    print_step "Setup $group_label"
 
     # Prepare display names for gum
     local display_names=()
@@ -145,4 +145,4 @@ while read -r group; do
 done < <(get_groups)
 
 echo ""
-gum style --foreground 212 --bold "✨ All tasks complete! Enjoy your new setup. ✨"
+gum style --foreground 212 --bold "✨ All done! Enjoy your new setup. ✨"
