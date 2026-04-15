@@ -27,11 +27,6 @@ brew install --casks \
         docker
 ```
 
-## iTerm2
-
-- Import [Iterm Profile](iterm-profile.json) (save as & import)
-- Color Preset - [Tomorrow Night Eighties](https://raw.githubusercontent.com/chriskempson/tomorrow-theme/master/iTerm2/Tomorrow%20Night%20Eighties.itermcolors) (save as & open the file)
-
 ## ZSH
 
 #### Dependencies

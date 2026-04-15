@@ -1,0 +1,10 @@
+theme = Tomorrow Night
+
+background-opacity = 0.85
+background-blur-radius = 5
+
+window-inherit-working-directory = false
+tab-inherit-working-directory = false
+split-inherit-working-directory = true
+
+keybind = global:cmd+backslash=toggle_visibility
