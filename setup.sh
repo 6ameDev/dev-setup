@@ -41,45 +41,23 @@ if ! command -v gum &> /dev/null; then
 fi
 
 # --- Configuration ---
-# Format: "Display Name|brew_identifier|install_type(formula/cask)"
+CONFIG_FILE="apps.conf"
 
-TERMINALS=(
-    "Alacritty|alacritty|cask"
-    "Ghostty|ghostty|cask"
-    "iTerm2|iterm2|cask"
-)
+# Helper to extract group names from apps.conf
+get_groups() {
+    grep "^\[.*\]$" "$CONFIG_FILE" | sed 's/\[//;s/\]//'
+}
 
-IDES=(
-    "Antigravity|antigravity|cask"
-    "VS Codium|vscodium|cask"
-    "Zed|zed|cask"
-)
-
-BROWSERS=(
-    "Brave|brave-browser|cask"
-    "Firefox|firefox|cask"
-    "Google Chrome|google-chrome|cask"
-    "Orion Browser|orion|cask"
-)
-
-UTILITIES=(
-    "Htop|htop|formula"
-    "Password generator|pwgen|formula"
-    "Tig|tig|formula"
-    "Tree|tree|formula"
-    "Watch|watch|formula"
-    "Flycut|flycut|cask"
-    "Rectangle|rectangle|cask"
-    "Zoom|zoom|cask"
-)
-
-# Mapping of Group Label to the Array Variable Name
-SOFTWARE_GROUPS=(
-    "Terminals|TERMINALS"
-    "Web Browsers|BROWSERS"
-    "IDEs|IDES"
-    "Utilities|UTILITIES"
-)
+# Helper to extract items for a specific group
+get_items_for_group() {
+    local group="$1"
+    # Extracts lines between [group] and the next [section] or EOF, skipping empty lines
+    awk -v group="[$group]" '
+        $0 == group {flag=1; next}
+        /^\[.*\]$/ {flag=0}
+        flag && NF {print $0}
+    ' "$CONFIG_FILE"
+}
 
 # --- Core Logic ---
 
@@ -96,11 +74,12 @@ install_group() {
     # Prepare display names for gum
     local display_names=()
     for opt in "${options[@]}"; do
-        display_names+=("${opt%%|*}")
+        # Handle pipe-delimited format: "Display Name | id | type"
+        local dname=$(echo "$opt" | cut -d'|' -f1 | xargs)
+        display_names+=("$dname")
     done
 
     # User Selection using gum
-    # --no-limit allows selecting multiple options
     local selections=$(printf "%s\n" "${display_names[@]}" | gum choose --no-limit --header "Select $group_label (Space: pick, Enter: confirm)")
 
     if [ -z "$selections" ]; then
@@ -114,12 +93,12 @@ install_group() {
     while IFS= read -r selection <&3; do
         if [ -z "$selection" ]; then continue; fi
 
-                # Match selection back to the original array to find brew ID and type
+                # Match selection back to the original options to find brew ID and type
                 for opt in "${options[@]}"; do
-                    local dname="${opt%%|*}"
+                    local dname=$(echo "$opt" | cut -d'|' -f1 | xargs)
                     if [ "$selection" == "$dname" ]; then
-                        local b_id=$(echo "$opt" | cut -d'|' -f2)
-                        local b_type=$(echo "$opt" | cut -d'|' -f3)
+                        local b_id=$(echo "$opt" | cut -d'|' -f2 | xargs)
+                        local b_type=$(echo "$opt" | cut -d'|' -f3 | xargs)
 
                         # Check if already installed
                         if brew list --$b_type "$b_id" &>/dev/null; then
@@ -147,14 +126,23 @@ install_group() {
 clear
 print_header
 
-for group in "${SOFTWARE_GROUPS[@]}"; do
-    group_label="${group%%|*}"
-    group_var="${group##*|}"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: $CONFIG_FILE not found!"
+    exit 1
+fi
 
-    eval "group_options=(\"\${${group_var}[@]}\")"
+# Dynamically load and run each group
+while read -r group; do
+    [ -z "$group" ] && continue
 
-    install_group "$group_label" "${group_options[@]}"
-done
+    # Load items for this group into an array
+    items=()
+    while read -r item; do
+        items+=("$item")
+    done < <(get_items_for_group "$group")
+
+    install_group "$group" "${items[@]}"
+done < <(get_groups)
 
 echo ""
 gum style --foreground 212 --bold "✨ All tasks complete! Enjoy your new setup. ✨"

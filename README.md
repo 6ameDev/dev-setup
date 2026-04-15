@@ -20,7 +20,7 @@ The primary way to set up your machine is via the interactive wizard. It walks y
 
 ## 📅 Roadmap & Future Updates
 
-- [ ] **Automatic Configuration Application**: If a selected software (cask or formula) has a recommended configuration file stored in this repository (e.g., in the `terminal/` directory), it will be applied automatically during the installation process.
+- [ ] **Automatic Configuration Application**: If a selected software (cask or formula) has a recommended configuration file stored in this repository (e.g., in the `terminals/` directory), it will be applied automatically during the installation process.
 
 ---
 
