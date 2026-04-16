@@ -8,3 +8,5 @@ tab-inherit-working-directory = false
 split-inherit-working-directory = true
 
 keybind = global:cmd+backslash=toggle_visibility
+
+macos-hidden = always
