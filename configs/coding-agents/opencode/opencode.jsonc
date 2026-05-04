@@ -1,0 +1,35 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "autoupdate": true,
+  "default_agent": "plan",
+
+  // === Permissions ===
+  "permission": {
+    "skill": {
+      "*": "allow",
+      "pro-*": "deny", // By default, Pro skills are not available to agents (Loads too much context)
+    },
+    "bash": {
+      "sudo *": "deny",
+      "rm -rf /": "deny",
+      "rm -rf /*": "deny",
+      "rm -rf ~": "deny",
+      "rm -rf ~/*": "deny",
+      ":(){:|:&};:": "deny", // fork bomb, just in case
+    },
+  },
+
+  // === Agent Overrides ===
+  "agent": {
+    "build": {
+      "permission": {
+        "bash": "ask",
+      },
+    },
+  },
+
+  "experimental": {
+    "disable_paste_summary": true,
+  },
+}
